@@ -1,0 +1,133 @@
+definitions:
+  endpoint.DateTimeRequest:
+    properties:
+      duration:
+        example: -5d
+        type: string
+      layout:
+        example: "2006-01-02 15:04:05"
+        type: string
+    type: object
+  endpoint.DateTimeResponse:
+    properties:
+      err:
+        type: string
+      v:
+        type: string
+    type: object
+  endpoint.GetRequest:
+    properties:
+      ip:
+        type: string
+      localPath:
+        type: string
+      passwd:
+        type: string
+      remoteFilePath:
+        type: string
+      user:
+        type: string
+    type: object
+  endpoint.GetResponse:
+    properties:
+      err:
+        type: string
+      v:
+        type: string
+    type: object
+  endpoint.ListRequest:
+    properties:
+      ip:
+        type: string
+      passwd:
+        type: string
+      remoteFilePath:
+        type: string
+      user:
+        type: string
+    type: object
+  endpoint.ListResponse:
+    properties:
+      err:
+        type: string
+      v:
+        items:
+          type: string
+        type: array
+    type: object
+info:
+  contact:
+    email: xxx
+    name: Sun Quan
+  license:
+    name: Apache 2.0
+  title: 运行室 文件传输服务 文档
+  version: 0.1.0
+paths:
+  /datetime:
+    post:
+      consumes:
+      - application/json
+      description: 支持s,m,h,d,w, 例如 -5d：表示5天前。5d：表示5天后
+      parameters:
+      - description: 时间间隔和格式
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.DateTimeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/endpoint.DateTimeResponse'
+      summary: 获取制定时间
+      tags:
+      - DateTime
+  /get:
+    post:
+      consumes:
+      - application/json
+      description: 支持通配符
+      parameters:
+      - description: 远端ep和文件路径
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.GetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/endpoint.GetResponse'
+      summary: 获取远程文件
+      tags:
+      - GET
+  /list:
+    post:
+      consumes:
+      - application/json
+      description: 支持通配符
+      parameters:
+      - description: 远端ep和文件路径
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.ListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/endpoint.ListResponse'
+      summary: 获取远程文件列表
+      tags:
+      - GET
+swagger: "2.0"
