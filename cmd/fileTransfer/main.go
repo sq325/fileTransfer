@@ -12,6 +12,7 @@ import (
 	_ "fileTransfer/docs"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	kitendpoint "github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -27,8 +28,8 @@ var (
 )
 
 const (
-	_version   = "fileTransfer v0.1.0"
-	updateInfo = "swagger doc with gin"
+	_version   = "fileTransfer v0.1.2"
+	updateInfo = "/get localFilePath bugfix"
 )
 
 var (
@@ -41,8 +42,8 @@ func init() {
 	pflag.Parse()
 }
 
-// @title			运行室 文件传输服务 文档
-// @version		0.1.0
+// @title			运行室 文件传输服务
+// @version		0.1.2
 //
 // @contact.name	Sun Quan
 // @contact.email	xxx
@@ -53,21 +54,14 @@ func main() {
 		fmt.Println("build time:", buildTime)
 		fmt.Println("go version:", buildGoVersion)
 		fmt.Println("author:", author)
+		fmt.Println("update info:", updateInfo)
 		return
 	}
 
-	var epMiddlerwares kitendpoint.Middleware
-	{
-		metrics := endpoint.NewMetrics()
-		cardMetrics := endpoint.NewCardBackMetrics()
-
-		instrumentingMiddleware := endpoint.InstrumentingMiddleware(metrics)
-		cardinstrumentingMiddleware := endpoint.CardBackInstrumentingMiddleware(cardMetrics)
-		epMiddlerwares = func(ep kitendpoint.Endpoint) kitendpoint.Endpoint {
-			return cardinstrumentingMiddleware(instrumentingMiddleware(ep))
-		}
-
-	}
+	metrics := endpoint.NewMetrics()
+	cardMetrics := endpoint.NewCardBackMetrics()
+	instrumentingMiddleware := endpoint.InstrumentingMiddleware(metrics)
+	cardinstrumentingMiddleware := endpoint.CardBackInstrumentingMiddleware(cardMetrics)
 
 	transferSvc := service.NewTransfer()
 	datetimeSvc := service.NewDateTimer()
@@ -78,7 +72,11 @@ func main() {
 		ginHandlerFunc(
 			"POST",
 			"/get",
-			epMiddlerwares(endpoint.MakeGetEndpoint(transferSvc)),
+			instrumentingMiddleware(
+				cardinstrumentingMiddleware(
+					endpoint.MakeGetEndpoint(transferSvc),
+				),
+			),
 			transport.DecodeGetRequest,
 			transport.EncodeGetResponse,
 		),
@@ -88,7 +86,7 @@ func main() {
 		ginHandlerFunc(
 			"POST",
 			"/list",
-			epMiddlerwares(endpoint.MakeListEndpoint(transferSvc)),
+			instrumentingMiddleware(endpoint.MakeListEndpoint(transferSvc)),
 			transport.DecodeListRequest,
 			transport.EncodeListResponse,
 		),
@@ -98,12 +96,13 @@ func main() {
 		ginHandlerFunc(
 			"POST",
 			"/datetime",
-			epMiddlerwares(endpoint.MakeDateTimeEndpoint(datetimeSvc)),
+			instrumentingMiddleware(endpoint.MakeDateTimeEndpoint(datetimeSvc)),
 			transport.DecodeDateTimeRequest,
 			transport.EncodeDateTimeResponse,
 		),
 	)
 	mux.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	mux.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	log.Fatal(mux.Run(":" + *port))
 
@@ -119,8 +118,8 @@ func ginHandlerFunc(
 	return func(c *gin.Context) {
 		opt := httptransport.ServerBefore(
 			func(ctx context.Context, _ *http.Request) context.Context {
-				context.WithValue(ctx, "method", method)
-				context.WithValue(ctx, "uri", uri)
+				ctx = context.WithValue(ctx, "method", method)
+				ctx = context.WithValue(ctx, "uri", uri)
 				return ctx
 			})
 

@@ -21,7 +21,13 @@ func NewTransfer() Transfer {
 }
 
 func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error {
-	sftpClient, err := newSftpClient(ip, user, passwd)
+	sshClient, err := newSshClient(ip, user, passwd)
+	if err != nil {
+		return err
+	}
+	defer sshClient.Close()
+
+	sftpClient, err := newSftpClient(sshClient)
 	if err != nil {
 		return err
 	}
@@ -51,9 +57,9 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 		var localFilePath string
 		{
 			if strings.HasSuffix(localPath, "/") {
-				localPath = localPath + remoteFileName
+				localFilePath = localPath + remoteFileName
 			} else {
-				localPath = localPath + "/" + remoteFileName
+				localFilePath = localPath + "/" + remoteFileName
 			}
 		}
 		if err := createLocalFile(remoteFile, localFilePath); err != nil {
@@ -65,7 +71,13 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 }
 
 func (t transfer) List(ip, user, passwd, remoteFilePath string) ([]string, error) {
-	sftpClient, err := newSftpClient(ip, user, passwd)
+	sshClient, err := newSshClient(ip, user, passwd)
+	if err != nil {
+		return nil, err
+	}
+	defer sshClient.Close()
+
+	sftpClient, err := newSftpClient(sshClient)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +95,11 @@ func createLocalFile(remoteFile *sftp.File, localFilePath string) error {
 		return fmt.Errorf("create file Error, %s already exists", localFilePath)
 	}
 
+	if _, err := os.Stat(localFilePath); os.IsNotExist(err) {
+		// File does not exist, handle error
+		return fmt.Errorf("file does not exist: %w", err)
+	}
+
 	localFile, err := os.Create(localFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to create local file: %w", err)
@@ -95,7 +112,7 @@ func createLocalFile(remoteFile *sftp.File, localFilePath string) error {
 	return nil
 }
 
-func newSftpClient(ip, user, passwd string) (*sftp.Client, error) {
+func newSshClient(ip, user, passwd string) (*ssh.Client, error) {
 	sftpPort := 22
 	sshConfig := &ssh.ClientConfig{
 		User: user,
@@ -109,8 +126,10 @@ func newSftpClient(ip, user, passwd string) (*sftp.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to establish SSH connection: %w", err)
 	}
-	defer sshClient.Close()
+	return sshClient, nil
+}
 
+func newSftpClient(sshClient *ssh.Client) (*sftp.Client, error) {
 	sftpClient, err := sftp.NewClient(sshClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create SFTP client: %w", err)

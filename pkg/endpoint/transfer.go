@@ -51,9 +51,9 @@ func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 
 		err := t.Get(req.Ip, req.User, req.Passwd, req.RemoteFilePath, req.LocalPath)
 		if err != nil {
-			return GetResponse{"", err.Error()}, nil
+			return GetResponse{req.RemoteFilePath + " failed", err.Error()}, err
 		}
-		return GetResponse{"OK", ""}, nil
+		return GetResponse{req.RemoteFilePath + " OK", ""}, nil
 	}
 }
 
@@ -75,7 +75,7 @@ func MakeListEndpoint(t service.Transfer) endpoint.Endpoint {
 		}
 		list, err := t.List(req.Ip, req.User, req.Passwd, req.RemoteFilePath)
 		if err != nil {
-			return ListResponse{list, err.Error()}, nil
+			return ListResponse{list, err.Error()}, err
 		}
 		return ListResponse{list, ""}, nil
 	}

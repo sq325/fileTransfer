@@ -32,7 +32,7 @@ func MakeDateTimeEndpoint(t service.DateTimer) endpoint.Endpoint {
 		req := request.(DateTimeRequest)
 		v, err := t.DateTime(req.Duration, req.Layout)
 		if err != nil {
-			return DateTimeResponse{"", err.Error()}, nil
+			return DateTimeResponse{"", err.Error()}, err
 		}
 		return DateTimeResponse{v, ""}, nil
 	}

@@ -15,7 +15,6 @@ import (
 func InstrumentingMiddleware(m CommonMetrics) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request any) (resp any, err error) {
-			req := request.(GetRequest)
 			method, ok := ctx.Value("method").(string)
 			if !ok {
 				method = "unknow"
@@ -37,7 +36,7 @@ func InstrumentingMiddleware(m CommonMetrics) endpoint.Middleware {
 				m.ReqL.With("method", method, "uri", uri).Observe(float64(time.Since(begin).Microseconds()))
 			}(time.Now())
 
-			return next(ctx, req)
+			return next(ctx, request)
 		}
 	}
 }
@@ -92,7 +91,7 @@ func NewMetrics() CommonMetrics {
 	}, []string{"uri", "method"})
 	requestErrCounter := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
 		Name: "fileTransfer_request_error_count",
-		Help: "Number of erroneous requests received.",
+		Help: "Number of error requests received.",
 	}, []string{"uri", "method"})
 	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
 		Name: "fileTransfer_request_latency_microseconds",
@@ -107,11 +106,11 @@ func NewMetrics() CommonMetrics {
 
 func NewCardBackMetrics() CardBackMetrics {
 	fileAllCounter := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Name: "file_transfer_all_count",
+		Name: "fileTransfer_all_count",
 		Help: "Number of tranfered files",
 	}, []string{"host"})
 	fileMainCounter := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Name: "file_transfer_main_count",
+		Name: "fileTransfer_main_count",
 		Help: "Number of tranfered files",
 	}, []string{"host", "user", "date", "bank"})
 

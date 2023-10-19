@@ -130,7 +130,7 @@ const docTemplate = `{
             "properties": {
                 "duration": {
                     "type": "string",
-                    "example": "-5d"
+                    "example": "-5d3h22m11s"
                 },
                 "layout": {
                     "type": "string",

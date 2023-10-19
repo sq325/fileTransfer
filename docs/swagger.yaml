@@ -2,7 +2,7 @@ definitions:
   endpoint.DateTimeRequest:
     properties:
       duration:
-        example: -5d
+        example: -5d3h22m11s
         type: string
       layout:
         example: "2006-01-02 15:04:05"
