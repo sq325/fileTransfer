@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/sftp"
@@ -43,7 +44,6 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 		if err != nil {
 			return fmt.Errorf("failed to open remote file: %w", err)
 		}
-		defer remoteFile.Close()
 
 		var remoteFileName string
 		{
@@ -55,16 +55,22 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 		}
 
 		var localFilePath string
+		// 如果localFilePath是文件夹
 		{
-			if strings.HasSuffix(localPath, "/") {
-				localFilePath = localPath + remoteFileName
+			info, err := os.Stat(localPath)
+			if err != nil {
+				return fmt.Errorf("failed to get local file info: %w", err)
+			}
+			if info.IsDir() {
+				localFilePath = filepath.Join(localPath, remoteFileName)
 			} else {
-				localFilePath = localPath + "/" + remoteFileName
+				localFilePath = localPath
 			}
 		}
 		if err := createLocalFile(remoteFile, localFilePath); err != nil {
-			return fmt.Errorf("failed to create local file: %w", err)
+			return fmt.Errorf("failed to create local file %s: %w", localFilePath, err)
 		}
+		remoteFile.Close()
 	}
 
 	return nil
@@ -93,11 +99,6 @@ func createLocalFile(remoteFile *sftp.File, localFilePath string) error {
 	// 如果文件存在则报错
 	if _, err := os.Stat(localFilePath); err == nil {
 		return fmt.Errorf("create file Error, %s already exists", localFilePath)
-	}
-
-	if _, err := os.Stat(localFilePath); os.IsNotExist(err) {
-		// File does not exist, handle error
-		return fmt.Errorf("file does not exist: %w", err)
 	}
 
 	localFile, err := os.Create(localFilePath)

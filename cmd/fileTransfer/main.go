@@ -28,8 +28,8 @@ var (
 )
 
 const (
-	_version   = "fileTransfer v0.1.2"
-	updateInfo = "/get localFilePath bugfix"
+	_version   = "fileTransfer v0.1.4"
+	updateInfo = "/get remoteFile close bugfix"
 )
 
 var (
@@ -43,10 +43,8 @@ func init() {
 }
 
 // @title			运行室 文件传输服务
-// @version		0.1.2
-//
-// @contact.name	Sun Quan
-// @contact.email	xxx
+// @version		0.1.4
+
 // @license.name	Apache 2.0
 func main() {
 	if *version {

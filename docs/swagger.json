@@ -1,15 +1,12 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "运行室 文件传输服务 文档",
-        "contact": {
-            "name": "Sun Quan",
-            "email": "xxx"
-        },
+        "title": "运行室 文件传输服务",
+        "contact": {},
         "license": {
             "name": "Apache 2.0"
         },
-        "version": "0.1.0"
+        "version": "0.1.4"
     },
     "paths": {
         "/datetime": {

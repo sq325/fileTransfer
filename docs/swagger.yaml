@@ -56,13 +56,11 @@ definitions:
         type: array
     type: object
 info:
-  contact:
-    email: xxx
-    name: Sun Quan
+  contact: {}
   license:
     name: Apache 2.0
-  title: 运行室 文件传输服务 文档
-  version: 0.1.0
+  title: 运行室 文件传输服务
+  version: 0.1.4
 paths:
   /datetime:
     post:

@@ -45,10 +45,6 @@ type ListResponse struct {
 func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
 		req := request.(GetRequest)
-		if req.User == "" {
-			req.User, req.Passwd = patrol()
-		}
-
 		err := t.Get(req.Ip, req.User, req.Passwd, req.RemoteFilePath, req.LocalPath)
 		if err != nil {
 			return GetResponse{req.RemoteFilePath + " failed", err.Error()}, err
@@ -70,17 +66,10 @@ func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 func MakeListEndpoint(t service.Transfer) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
 		req := request.(ListRequest)
-		if req.User == "" {
-			req.User, req.Passwd = patrol()
-		}
 		list, err := t.List(req.Ip, req.User, req.Passwd, req.RemoteFilePath)
 		if err != nil {
 			return ListResponse{list, err.Error()}, err
 		}
 		return ListResponse{list, ""}, nil
 	}
-}
-
-func patrol() (user, passwd string) {
-	return "patrol", "agent@9753"
 }
