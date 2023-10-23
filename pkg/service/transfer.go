@@ -45,14 +45,7 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 			return fmt.Errorf("failed to open remote file: %w", err)
 		}
 
-		var remoteFileName string
-		{
-			remoteFileInfo, err := remoteFile.Stat()
-			if err != nil {
-				return fmt.Errorf("failed to get remote file info: %w", err)
-			}
-			remoteFileName = remoteFileInfo.Name()
-		}
+		remoteFileName := filepath.Base(path)
 
 		var localFilePath string
 		// 如果localFilePath是文件夹
@@ -97,10 +90,9 @@ func (t transfer) List(ip, user, passwd, remoteFilePath string) ([]string, error
 
 func createLocalFile(remoteFile *sftp.File, localFilePath string) error {
 	// 如果文件存在则报错
-	if _, err := os.Stat(localFilePath); err == nil {
-		return fmt.Errorf("create file Error, %s already exists", localFilePath)
-	}
-
+	// if _, err := os.Stat(localFilePath); err == nil {
+	// 	return fmt.Errorf("create file Error, %s already exists", localFilePath)
+	// }
 	localFile, err := os.Create(localFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to create local file: %w", err)
