@@ -6,43 +6,9 @@
         "license": {
             "name": "Apache 2.0"
         },
-        "version": "0.1.4"
+        "version": "0.2.0"
     },
     "paths": {
-        "/datetime": {
-            "post": {
-                "description": "支持s,m,h,d,w, 例如 -5d：表示5天前。5d：表示5天后",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DateTime"
-                ],
-                "summary": "获取制定时间",
-                "parameters": [
-                    {
-                        "description": "时间间隔和格式",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/endpoint.DateTimeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/endpoint.DateTimeResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/get": {
             "post": {
                 "description": "支持通配符",
@@ -113,30 +79,6 @@
         }
     },
     "definitions": {
-        "endpoint.DateTimeRequest": {
-            "type": "object",
-            "properties": {
-                "duration": {
-                    "type": "string",
-                    "example": "-5d3h22m11s"
-                },
-                "layout": {
-                    "type": "string",
-                    "example": "2006-01-02 15:04:05"
-                }
-            }
-        },
-        "endpoint.DateTimeResponse": {
-            "type": "object",
-            "properties": {
-                "err": {
-                    "type": "string"
-                },
-                "v": {
-                    "type": "string"
-                }
-            }
-        },
         "endpoint.GetRequest": {
             "type": "object",
             "properties": {

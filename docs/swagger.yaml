@@ -1,20 +1,4 @@
 definitions:
-  endpoint.DateTimeRequest:
-    properties:
-      duration:
-        example: -5d3h22m11s
-        type: string
-      layout:
-        example: "2006-01-02 15:04:05"
-        type: string
-    type: object
-  endpoint.DateTimeResponse:
-    properties:
-      err:
-        type: string
-      v:
-        type: string
-    type: object
   endpoint.GetRequest:
     properties:
       ip:
@@ -60,30 +44,8 @@ info:
   license:
     name: Apache 2.0
   title: 运行室 文件传输服务
-  version: 0.1.4
+  version: 0.2.0
 paths:
-  /datetime:
-    post:
-      consumes:
-      - application/json
-      description: 支持s,m,h,d,w, 例如 -5d：表示5天前。5d：表示5天后
-      parameters:
-      - description: 时间间隔和格式
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/endpoint.DateTimeRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/endpoint.DateTimeResponse'
-      summary: 获取制定时间
-      tags:
-      - DateTime
   /get:
     post:
       consumes:

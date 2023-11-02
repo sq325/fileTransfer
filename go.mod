@@ -1,6 +1,6 @@
 module fileTransfer
 
-go 1.21.0
+go 1.21.3
 
 require (
 	github.com/gin-gonic/gin v1.9.1
@@ -8,11 +8,11 @@ require (
 	github.com/pkg/sftp v1.13.6
 	github.com/prometheus/client_golang v1.17.0
 	github.com/spf13/pflag v1.0.5
+	github.com/sq325/kitComplement v0.0.1
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.2
 	golang.org/x/crypto v0.14.0
-	instrumentation v0.0.1
 )
 
 require (
@@ -61,5 +61,3 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace instrumentation => ../instrumentation@v0.0.1

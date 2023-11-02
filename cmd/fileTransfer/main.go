@@ -16,7 +16,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	"instrumentation"
+	"github.com/sq325/kitComplement/pkg/instrumentation"
 )
 
 var (

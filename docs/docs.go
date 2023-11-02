@@ -18,40 +18,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/datetime": {
-            "post": {
-                "description": "支持s,m,h,d,w, 例如 -5d：表示5天前。5d：表示5天后",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DateTime"
-                ],
-                "summary": "获取制定时间",
-                "parameters": [
-                    {
-                        "description": "时间间隔和格式",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/endpoint.DateTimeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/endpoint.DateTimeResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/get": {
             "post": {
                 "description": "支持通配符",
@@ -122,30 +88,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "endpoint.DateTimeRequest": {
-            "type": "object",
-            "properties": {
-                "duration": {
-                    "type": "string",
-                    "example": "-5d3h22m11s"
-                },
-                "layout": {
-                    "type": "string",
-                    "example": "2006-01-02 15:04:05"
-                }
-            }
-        },
-        "endpoint.DateTimeResponse": {
-            "type": "object",
-            "properties": {
-                "err": {
-                    "type": "string"
-                },
-                "v": {
-                    "type": "string"
-                }
-            }
-        },
         "endpoint.GetRequest": {
             "type": "object",
             "properties": {
@@ -213,7 +155,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.1.4",
+	Version:          "0.2.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
