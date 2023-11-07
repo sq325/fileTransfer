@@ -32,6 +32,12 @@ type ListResponse struct {
 	Err string   `json:"err"`
 }
 
+type HealthCheckRequest struct{}
+
+type HealthCheckResponse struct {
+	V bool `json:"v"` // status code
+}
+
 // Get
 //
 //	@Summary		获取远程文件
@@ -71,5 +77,12 @@ func MakeListEndpoint(t service.Transfer) endpoint.Endpoint {
 			return ListResponse{list, err.Error()}, err
 		}
 		return ListResponse{list, ""}, nil
+	}
+}
+
+func MakeHealthEndpoint(t service.Transfer) endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		status := t.HealthCheck()
+		return HealthCheckResponse{V: status}, nil
 	}
 }

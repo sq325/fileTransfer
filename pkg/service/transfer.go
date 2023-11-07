@@ -13,6 +13,7 @@ import (
 type Transfer interface {
 	Get(ip, user, passwd, remoteFilePath, localPath string) error
 	List(ip, user, passwd, remoteFilePath string) ([]string, error)
+	HealthCheck() bool
 }
 
 type transfer struct{}
@@ -86,6 +87,10 @@ func (t transfer) List(ip, user, passwd, remoteFilePath string) ([]string, error
 		return nil, fmt.Errorf("failed to Glob %s: %w", remoteFilePath, err)
 	}
 	return paths, nil
+}
+
+func (t transfer) HealthCheck() bool {
+	return true
 }
 
 func createLocalFile(remoteFile *sftp.File, localFilePath string) error {
