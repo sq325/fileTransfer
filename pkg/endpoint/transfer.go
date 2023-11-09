@@ -20,6 +20,19 @@ type GetResponse struct {
 	Err string `json:"err"`
 }
 
+type PutRequest struct {
+	Ip          string `json:"ip"`
+	User        string `json:"user"`
+	Passwd      string `json:"passwd"`
+	DstFilePath string `json:"dstFilePath"` // dst为client所在机器路径
+	SrcFilePath string `json:"srcFilePath"` // src为fileTransfer服务本地文件路径
+}
+
+type PutResponse struct {
+	V   string `json:"v"`
+	Err string `json:"err"`
+}
+
 type ListRequest struct {
 	Ip             string `json:"ip"`
 	User           string `json:"user"`
@@ -56,6 +69,27 @@ func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 			return GetResponse{req.RemoteFilePath + " failed", err.Error()}, err
 		}
 		return GetResponse{req.RemoteFilePath + " OK", ""}, nil
+	}
+}
+
+// Put
+//
+//	@Summary		put文件到远程
+//	@Description	支持通配符
+//	@Tags			GET
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		PutRequest	true	"dst和src file"
+//	@Success		200		{object}	PutResponse
+//	@Router			/put [post]
+func MakePutEndpoint(t service.Transfer) endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		req := request.(PutRequest)
+		err := t.Put(req.Ip, req.User, req.Passwd, req.DstFilePath, req.SrcFilePath)
+		if err != nil {
+			return PutResponse{req.DstFilePath + " failed", err.Error()}, err
+		}
+		return PutResponse{req.DstFilePath + " OK", ""}, nil
 	}
 }
 

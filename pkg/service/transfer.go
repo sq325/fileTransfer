@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,7 @@ import (
 type Transfer interface {
 	Get(ip, user, passwd, remoteFilePath, localPath string) error
 	List(ip, user, passwd, remoteFilePath string) ([]string, error)
+	Put(ip, user, passwd, dstDir, srcFilePath string) error
 	HealthCheck() bool
 }
 
@@ -22,6 +24,7 @@ func NewTransfer() Transfer {
 	return &transfer{}
 }
 
+// remoteFile copy -> localFile
 func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error {
 	sshClient, err := newSshClient(ip, user, passwd)
 	if err != nil {
@@ -34,13 +37,13 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 		return err
 	}
 
-	paths, err := sftpClient.Glob(remoteFilePath)
+	ms, err := sftpClient.Glob(remoteFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to Glob %s: %w", remoteFilePath, err)
 	}
 
 	localPath = strings.TrimSpace(localPath)
-	for _, path := range paths {
+	for _, path := range ms {
 		remoteFile, err := sftpClient.Open(path)
 		if err != nil {
 			return fmt.Errorf("failed to open remote file: %w", err)
@@ -49,7 +52,6 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 		remoteFileName := filepath.Base(path)
 
 		var localFilePath string
-		// 如果localFilePath是文件夹
 		{
 			info, err := os.Stat(localPath)
 			if err != nil {
@@ -87,6 +89,69 @@ func (t transfer) List(ip, user, passwd, remoteFilePath string) ([]string, error
 		return nil, fmt.Errorf("failed to Glob %s: %w", remoteFilePath, err)
 	}
 	return paths, nil
+}
+
+// dstDir: /home/xxx/xxx/xxx, client所在机器的路径
+// srcFilePath: /home/xxx/xxx/xxx fileTransfer服务所在机器的路径
+// localFile copy -> remote file
+func (t transfer) Put(ip, user, passwd, dstDir, srcFilePath string) error {
+	// check srcFilePath
+	if info, err := os.Stat(srcFilePath); err != nil {
+		return fmt.Errorf("failed to get local file info: %w", err)
+	} else if info.IsDir() {
+		return fmt.Errorf("%s must not be dir", srcFilePath)
+	}
+
+	var sftpClient *sftp.Client
+	{
+		sshClient, err := newSshClient(ip, user, passwd)
+		if err != nil {
+			return err
+		}
+		defer sshClient.Close()
+
+		sftpClient, err := newSftpClient(sshClient)
+		if err != nil {
+			return err
+		}
+		defer sftpClient.Close()
+	}
+
+	// check dstDir
+	if info, err := sftpClient.Stat(dstDir); err != nil {
+		return fmt.Errorf("failed to get client file info: %w", err)
+	} else if !info.IsDir() {
+		return fmt.Errorf("%s must be dir", dstDir)
+	}
+
+	// src glob
+	ms, err := filepath.Glob(srcFilePath)
+	if err != nil {
+		return fmt.Errorf("failed to Glob %s: %w", srcFilePath, err)
+	}
+
+	for _, srcpath := range ms {
+		fileName := filepath.Base(srcpath)
+		dstFilePath := filepath.Join(dstDir, fileName)
+		dstFile, err := sftpClient.Create(dstFilePath)
+		if err != nil {
+			return err
+		}
+		defer dstFile.Close()
+
+		srcFile, err := os.Open(srcpath)
+		if err != nil {
+			return fmt.Errorf("failed %s to create local file: %w", srcpath, err)
+		}
+		defer srcFile.Close()
+
+		_, err = io.Copy(dstFile, srcFile) // src -> dst
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (t transfer) HealthCheck() bool {

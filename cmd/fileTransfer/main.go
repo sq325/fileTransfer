@@ -32,8 +32,8 @@ var (
 
 const (
 	_service     = "fileTransfer"
-	_version     = "v0.3.0"
-	_versionInfo = "add consul register"
+	_version     = "v0.4.1"
+	_versionInfo = "download change to put"
 )
 
 var (
@@ -47,7 +47,7 @@ func init() {
 }
 
 // @title			运行室 文件传输服务
-// @version		0.2.0
+// @version		0.4.1
 
 // @license.name	Apache 2.0
 func main() {
@@ -79,6 +79,16 @@ func main() {
 			),
 			transport.DecodeGetRequest,
 			transport.EncodeGetResponse,
+		),
+	)
+
+	mux.POST("/put",
+		instrumentation.GinHandlerFunc(
+			"POST",
+			"/put",
+			instrumentingMiddleware(endpoint.MakePutEndpoint(transferSvc)),
+			transport.DecodePutRequest,
+			transport.EncodePutResponse,
 		),
 	)
 

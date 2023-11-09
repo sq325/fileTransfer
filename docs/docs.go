@@ -85,6 +85,40 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/put": {
+            "post": {
+                "description": "支持通配符",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GET"
+                ],
+                "summary": "put文件到远程",
+                "parameters": [
+                    {
+                        "description": "dst和src file",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/endpoint.PutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/endpoint.PutResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -149,13 +183,46 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "endpoint.PutRequest": {
+            "type": "object",
+            "properties": {
+                "dstFilePath": {
+                    "description": "dst为client所在机器路径",
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "passwd": {
+                    "type": "string"
+                },
+                "srcFilePath": {
+                    "description": "src为fileTransfer服务本地文件路径",
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "endpoint.PutResponse": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "v": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.2.0",
+	Version:          "0.4.1",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},

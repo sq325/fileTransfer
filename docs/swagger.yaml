@@ -39,12 +39,34 @@ definitions:
           type: string
         type: array
     type: object
+  endpoint.PutRequest:
+    properties:
+      dstFilePath:
+        description: dst为client所在机器路径
+        type: string
+      ip:
+        type: string
+      passwd:
+        type: string
+      srcFilePath:
+        description: src为fileTransfer服务本地文件路径
+        type: string
+      user:
+        type: string
+    type: object
+  endpoint.PutResponse:
+    properties:
+      err:
+        type: string
+      v:
+        type: string
+    type: object
 info:
   contact: {}
   license:
     name: Apache 2.0
   title: 运行室 文件传输服务
-  version: 0.2.0
+  version: 0.4.1
 paths:
   /get:
     post:
@@ -88,6 +110,28 @@ paths:
           schema:
             $ref: '#/definitions/endpoint.ListResponse'
       summary: 获取远程文件列表
+      tags:
+      - GET
+  /put:
+    post:
+      consumes:
+      - application/json
+      description: 支持通配符
+      parameters:
+      - description: dst和src file
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.PutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/endpoint.PutResponse'
+      summary: put文件到远程
       tags:
       - GET
 swagger: "2.0"
