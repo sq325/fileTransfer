@@ -14,7 +14,7 @@ import (
 type Transfer interface {
 	Get(ip, user, passwd, remoteFilePath, localPath string) error
 	List(ip, user, passwd, remoteFilePath string) ([]string, error)
-	Put(ip, user, passwd, dstDir, srcFilePath string) error
+	Put(clientIp, ClientUser, ClientPasswd, clientDir, srcFilePath string) error
 	HealthCheck() bool
 }
 
@@ -36,6 +36,7 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 	if err != nil {
 		return err
 	}
+	defer sftpClient.Close()
 
 	ms, err := sftpClient.Glob(remoteFilePath)
 	if err != nil {
@@ -91,10 +92,8 @@ func (t transfer) List(ip, user, passwd, remoteFilePath string) ([]string, error
 	return paths, nil
 }
 
-// dstDir: /home/xxx/xxx/xxx, client所在机器的路径
-// srcFilePath: /home/xxx/xxx/xxx fileTransfer服务所在机器的路径
-// localFile copy -> remote file
-func (t transfer) Put(ip, user, passwd, dstDir, srcFilePath string) error {
+func (t transfer) Put(clientIp, ClientUser, ClientPasswd, clientDir, srcFilePath string) error {
+	srcFilePath, _ = filepath.Abs(srcFilePath)
 	// check srcFilePath
 	if info, err := os.Stat(srcFilePath); err != nil {
 		return fmt.Errorf("failed to get local file info: %w", err)
@@ -102,26 +101,23 @@ func (t transfer) Put(ip, user, passwd, dstDir, srcFilePath string) error {
 		return fmt.Errorf("%s must not be dir", srcFilePath)
 	}
 
-	var sftpClient *sftp.Client
-	{
-		sshClient, err := newSshClient(ip, user, passwd)
-		if err != nil {
-			return err
-		}
-		defer sshClient.Close()
-
-		sftpClient, err := newSftpClient(sshClient)
-		if err != nil {
-			return err
-		}
-		defer sftpClient.Close()
+	sshClient, err := newSshClient(clientIp, ClientUser, ClientPasswd)
+	if err != nil {
+		return err
 	}
+	defer sshClient.Close()
+
+	sftpClient, err := newSftpClient(sshClient)
+	if err != nil {
+		return err
+	}
+	defer sftpClient.Close()
 
 	// check dstDir
-	if info, err := sftpClient.Stat(dstDir); err != nil {
+	if info, err := sftpClient.Stat(clientDir); err != nil {
 		return fmt.Errorf("failed to get client file info: %w", err)
 	} else if !info.IsDir() {
-		return fmt.Errorf("%s must be dir", dstDir)
+		return fmt.Errorf("%s must be dir", clientDir)
 	}
 
 	// src glob
@@ -132,12 +128,12 @@ func (t transfer) Put(ip, user, passwd, dstDir, srcFilePath string) error {
 
 	for _, srcpath := range ms {
 		fileName := filepath.Base(srcpath)
-		dstFilePath := filepath.Join(dstDir, fileName)
-		dstFile, err := sftpClient.Create(dstFilePath)
+		clientFilePath := filepath.Join(clientDir, fileName)
+		clientFile, err := sftpClient.Create(clientFilePath)
 		if err != nil {
 			return err
 		}
-		defer dstFile.Close()
+		defer clientFile.Close()
 
 		srcFile, err := os.Open(srcpath)
 		if err != nil {
@@ -145,7 +141,7 @@ func (t transfer) Put(ip, user, passwd, dstDir, srcFilePath string) error {
 		}
 		defer srcFile.Close()
 
-		_, err = io.Copy(dstFile, srcFile) // src -> dst
+		_, err = io.Copy(clientFile, srcFile) // server -> client
 		if err != nil {
 			return err
 		}

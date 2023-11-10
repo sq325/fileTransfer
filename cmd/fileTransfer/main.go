@@ -32,8 +32,8 @@ var (
 
 const (
 	_service     = "fileTransfer"
-	_version     = "v0.4.1"
-	_versionInfo = "download change to put"
+	_version     = "v0.4.2"
+	_versionInfo = "/put detecting client ip and bugfix"
 )
 
 var (
@@ -47,7 +47,7 @@ func init() {
 }
 
 // @title			运行室 文件传输服务
-// @version		0.4.1
+// @version		0.4.2
 
 // @license.name	Apache 2.0
 func main() {

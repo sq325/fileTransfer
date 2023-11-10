@@ -30,7 +30,7 @@ const docTemplate = `{
                 "tags": [
                     "GET"
                 ],
-                "summary": "获取远程文件",
+                "summary": "get",
                 "parameters": [
                     {
                         "description": "远端ep和文件路径",
@@ -96,12 +96,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "GET"
+                    "Put"
                 ],
-                "summary": "put文件到远程",
+                "summary": "put文件到client端",
                 "parameters": [
                     {
-                        "description": "dst和src file",
+                        "description": "client and server file",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -187,21 +187,17 @@ const docTemplate = `{
         "endpoint.PutRequest": {
             "type": "object",
             "properties": {
-                "dstFilePath": {
-                    "description": "dst为client所在机器路径",
+                "clientDir": {
+                    "description": "must abs path",
                     "type": "string"
                 },
-                "ip": {
+                "clientPasswd": {
                     "type": "string"
                 },
-                "passwd": {
+                "clientUser": {
                     "type": "string"
                 },
                 "srcFilePath": {
-                    "description": "src为fileTransfer服务本地文件路径",
-                    "type": "string"
-                },
-                "user": {
                     "type": "string"
                 }
             }
@@ -222,7 +218,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.4.1",
+	Version:          "0.4.2",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},

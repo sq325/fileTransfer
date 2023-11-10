@@ -3,6 +3,7 @@ package endpoint
 import (
 	"context"
 	"fileTransfer/pkg/service"
+	"fmt"
 
 	"github.com/go-kit/kit/endpoint"
 )
@@ -21,11 +22,10 @@ type GetResponse struct {
 }
 
 type PutRequest struct {
-	Ip          string `json:"ip"`
-	User        string `json:"user"`
-	Passwd      string `json:"passwd"`
-	DstFilePath string `json:"dstFilePath"` // dst为client所在机器路径
-	SrcFilePath string `json:"srcFilePath"` // src为fileTransfer服务本地文件路径
+	ClientUser   string `json:"clientUser"`
+	ClientPasswd string `json:"clientPasswd"`
+	ClientDir    string `json:"clientDir"` // must abs path
+	SrcFilePath  string `json:"srcFilePath"`
 }
 
 type PutResponse struct {
@@ -53,7 +53,7 @@ type HealthCheckResponse struct {
 
 // Get
 //
-//	@Summary		获取远程文件
+//	@Summary get
 //	@Description	支持通配符
 //	@Tags			GET
 //	@Accept			json
@@ -63,8 +63,12 @@ type HealthCheckResponse struct {
 //	@Router			/get [post]
 func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
+		clientIp, ok := ctx.Value("clientip").(string)
+		if !ok {
+			return nil, fmt.Errorf("failed to get client ip")
+		}
 		req := request.(GetRequest)
-		err := t.Get(req.Ip, req.User, req.Passwd, req.RemoteFilePath, req.LocalPath)
+		err := t.Get(clientIp, req.User, req.Passwd, req.RemoteFilePath, req.LocalPath)
 		if err != nil {
 			return GetResponse{req.RemoteFilePath + " failed", err.Error()}, err
 		}
@@ -74,22 +78,26 @@ func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 
 // Put
 //
-//	@Summary		put文件到远程
+//	@Summary		put文件到client端
 //	@Description	支持通配符
-//	@Tags			GET
+//	@Tags			Put
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		PutRequest	true	"dst和src file"
+//	@Param			body	body		PutRequest	true	"client and server file"
 //	@Success		200		{object}	PutResponse
 //	@Router			/put [post]
 func MakePutEndpoint(t service.Transfer) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
 		req := request.(PutRequest)
-		err := t.Put(req.Ip, req.User, req.Passwd, req.DstFilePath, req.SrcFilePath)
-		if err != nil {
-			return PutResponse{req.DstFilePath + " failed", err.Error()}, err
+		clientIp, ok := ctx.Value("ClientIp").(string)
+		if !ok {
+			return nil, fmt.Errorf("failed to get client ip")
 		}
-		return PutResponse{req.DstFilePath + " OK", ""}, nil
+		err := t.Put(clientIp, req.ClientUser, req.ClientPasswd, req.ClientDir, req.SrcFilePath)
+		if err != nil {
+			return PutResponse{"put" + req.SrcFilePath + " failed", err.Error()}, err
+		}
+		return PutResponse{"put" + req.SrcFilePath + " OK", ""}, nil
 	}
 }
 
