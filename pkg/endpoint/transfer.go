@@ -2,8 +2,9 @@ package endpoint
 
 import (
 	"context"
-	"fileTransfer/pkg/service"
 	"fmt"
+
+	"github.com/sq325/fileTransfer/pkg/service"
 
 	"github.com/go-kit/kit/endpoint"
 )
@@ -53,7 +54,7 @@ type HealthCheckResponse struct {
 
 // Get
 //
-//	@Summary get
+//	@Summary 从remote端拉取文件到server端
 //	@Description	支持通配符
 //	@Tags			GET
 //	@Accept			json
@@ -78,7 +79,7 @@ func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 
 // Put
 //
-//	@Summary		put文件到client端
+//	@Summary		从server端put文件到client端
 //	@Description	支持通配符
 //	@Tags			Put
 //	@Accept			json
@@ -103,7 +104,7 @@ func MakePutEndpoint(t service.Transfer) endpoint.Endpoint {
 
 // List
 //
-//	@Summary		获取远程文件列表
+//	@Summary		从remote端获取文件列表
 //	@Description	支持通配符
 //	@Tags			GET
 //	@Accept			json

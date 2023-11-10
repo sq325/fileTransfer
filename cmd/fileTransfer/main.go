@@ -1,15 +1,16 @@
 package main
 
 import (
-	"fileTransfer/pkg/endpoint"
-	"fileTransfer/pkg/service"
-	"fileTransfer/pkg/transport"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 
-	_ "fileTransfer/docs"
+	"github.com/sq325/fileTransfer/pkg/endpoint"
+	"github.com/sq325/fileTransfer/pkg/service"
+	"github.com/sq325/fileTransfer/pkg/transport"
+
+	_ "github.com/sq325/fileTransfer/docs"
 
 	complementConsul "github.com/sq325/kitComplement/pkg/consul"
 
@@ -32,8 +33,8 @@ var (
 
 const (
 	_service     = "fileTransfer"
-	_version     = "v0.4.2"
-	_versionInfo = "/put detecting client ip and bugfix"
+	_version     = "v0.4.3"
+	_versionInfo = "rename module name"
 )
 
 var (
@@ -47,7 +48,7 @@ func init() {
 }
 
 // @title			运行室 文件传输服务
-// @version		0.4.2
+// @version		0.4.3
 
 // @license.name	Apache 2.0
 func main() {

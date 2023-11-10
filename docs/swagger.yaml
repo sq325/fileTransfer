@@ -63,7 +63,7 @@ info:
   license:
     name: Apache 2.0
   title: 运行室 文件传输服务
-  version: 0.4.2
+  version: 0.4.3
 paths:
   /get:
     post:
@@ -84,7 +84,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/endpoint.GetResponse'
-      summary: get
+      summary: 从remote端拉取文件到server端
       tags:
       - GET
   /list:
@@ -106,7 +106,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/endpoint.ListResponse'
-      summary: 获取远程文件列表
+      summary: 从remote端获取文件列表
       tags:
       - GET
   /put:
@@ -128,7 +128,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/endpoint.PutResponse'
-      summary: put文件到client端
+      summary: 从server端put文件到client端
       tags:
       - Put
 swagger: "2.0"

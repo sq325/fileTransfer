@@ -30,7 +30,7 @@ const docTemplate = `{
                 "tags": [
                     "GET"
                 ],
-                "summary": "get",
+                "summary": "从remote端拉取文件到server端",
                 "parameters": [
                     {
                         "description": "远端ep和文件路径",
@@ -64,7 +64,7 @@ const docTemplate = `{
                 "tags": [
                     "GET"
                 ],
-                "summary": "获取远程文件列表",
+                "summary": "从remote端获取文件列表",
                 "parameters": [
                     {
                         "description": "远端ep和文件路径",
@@ -98,7 +98,7 @@ const docTemplate = `{
                 "tags": [
                     "Put"
                 ],
-                "summary": "put文件到client端",
+                "summary": "从server端put文件到client端",
                 "parameters": [
                     {
                         "description": "client and server file",
@@ -218,7 +218,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.4.2",
+	Version:          "0.4.3",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},

@@ -1,4 +1,4 @@
-module fileTransfer
+module github.com/sq325/fileTransfer
 
 go 1.21.3
 

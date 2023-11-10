@@ -3,8 +3,9 @@ package transport
 import (
 	"context"
 	"encoding/json"
-	"fileTransfer/pkg/endpoint"
 	"net/http"
+
+	"github.com/sq325/fileTransfer/pkg/endpoint"
 )
 
 func DecodeGetRequest(ctx context.Context, r *http.Request) (any, error) {
