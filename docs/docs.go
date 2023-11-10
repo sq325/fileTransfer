@@ -33,7 +33,7 @@ const docTemplate = `{
                 "summary": "从remote端拉取文件到server端",
                 "parameters": [
                     {
-                        "description": "远端ep和文件路径",
+                        "description": "remote -\u003e server",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -67,7 +67,7 @@ const docTemplate = `{
                 "summary": "从remote端获取文件列表",
                 "parameters": [
                     {
-                        "description": "远端ep和文件路径",
+                        "description": "remote -\u003e server",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -101,7 +101,7 @@ const docTemplate = `{
                 "summary": "从server端put文件到client端",
                 "parameters": [
                     {
-                        "description": "client and server file",
+                        "description": "server -\u003e client",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -125,19 +125,20 @@ const docTemplate = `{
         "endpoint.GetRequest": {
             "type": "object",
             "properties": {
-                "ip": {
-                    "type": "string"
-                },
-                "localPath": {
-                    "type": "string"
-                },
-                "passwd": {
-                    "type": "string"
-                },
                 "remoteFilePath": {
+                    "description": "must abs path",
                     "type": "string"
                 },
-                "user": {
+                "remoteIp": {
+                    "type": "string"
+                },
+                "remotePasswd": {
+                    "type": "string"
+                },
+                "remoteUser": {
+                    "type": "string"
+                },
+                "srcDir": {
                     "type": "string"
                 }
             }
@@ -156,16 +157,16 @@ const docTemplate = `{
         "endpoint.ListRequest": {
             "type": "object",
             "properties": {
-                "ip": {
-                    "type": "string"
-                },
-                "passwd": {
-                    "type": "string"
-                },
                 "remoteFilePath": {
                     "type": "string"
                 },
-                "user": {
+                "remoteIp": {
+                    "type": "string"
+                },
+                "remotePasswd": {
+                    "type": "string"
+                },
+                "remoteUser": {
                     "type": "string"
                 }
             }
@@ -218,7 +219,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.4.3",
+	Version:          "0.4.4",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},

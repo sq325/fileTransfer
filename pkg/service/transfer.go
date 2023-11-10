@@ -5,15 +5,14 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 )
 
 type Transfer interface {
-	Get(ip, user, passwd, remoteFilePath, localPath string) error
-	List(ip, user, passwd, remoteFilePath string) ([]string, error)
+	Get(remoteIp, remoteUser, remotePasswd, remoteFilePath, srcDir string) error
+	List(remoteIp, remoteUser, remotePasswd, remoteFilePath string) ([]string, error)
 	Put(clientIp, ClientUser, ClientPasswd, clientDir, srcFilePath string) error
 	HealthCheck() bool
 }
@@ -24,9 +23,22 @@ func NewTransfer() Transfer {
 	return &transfer{}
 }
 
-// remoteFile copy -> localFile
-func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error {
-	sshClient, err := newSshClient(ip, user, passwd)
+func (t transfer) Get(remoteIp, remoteUser, remotePasswd, remoteFilePath, srcDir string) error {
+
+	// srcDir must be dir
+	if info, err := os.Stat(srcDir); err != nil {
+		return fmt.Errorf("failed to get srcDir:%s info: %w", srcDir, err)
+	} else if !info.IsDir() {
+		return fmt.Errorf("%s must be dir", srcDir)
+	}
+	srcDir, _ = filepath.Abs(srcDir)
+
+	// remoteFilePath muse be abs path
+	if !filepath.IsAbs(remoteFilePath) {
+		return fmt.Errorf("%s must be absolute path", remoteFilePath)
+	}
+
+	sshClient, err := newSshClient(remoteIp, remoteUser, remotePasswd)
 	if err != nil {
 		return err
 	}
@@ -43,7 +55,6 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 		return fmt.Errorf("failed to Glob %s: %w", remoteFilePath, err)
 	}
 
-	localPath = strings.TrimSpace(localPath)
 	for _, path := range ms {
 		remoteFile, err := sftpClient.Open(path)
 		if err != nil {
@@ -51,19 +62,7 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 		}
 
 		remoteFileName := filepath.Base(path)
-
-		var localFilePath string
-		{
-			info, err := os.Stat(localPath)
-			if err != nil {
-				return fmt.Errorf("failed to get local file info: %w", err)
-			}
-			if info.IsDir() {
-				localFilePath = filepath.Join(localPath, remoteFileName)
-			} else {
-				localFilePath = localPath
-			}
-		}
+		localFilePath := filepath.Join(srcDir, remoteFileName)
 		if err := createLocalFile(remoteFile, localFilePath); err != nil {
 			return fmt.Errorf("failed to create local file %s: %w", localFilePath, err)
 		}
@@ -73,8 +72,8 @@ func (t transfer) Get(ip, user, passwd, remoteFilePath, localPath string) error 
 	return nil
 }
 
-func (t transfer) List(ip, user, passwd, remoteFilePath string) ([]string, error) {
-	sshClient, err := newSshClient(ip, user, passwd)
+func (t transfer) List(remoteIp, remoteUser, remotePasswd, remoteFilePath string) ([]string, error) {
+	sshClient, err := newSshClient(remoteIp, remoteUser, remotePasswd)
 	if err != nil {
 		return nil, err
 	}

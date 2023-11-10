@@ -10,11 +10,11 @@ import (
 )
 
 type GetRequest struct {
-	Ip             string `json:"ip"`
-	User           string `json:"user"`
-	Passwd         string `json:"passwd"`
-	RemoteFilePath string `json:"remoteFilePath"`
-	LocalPath      string `json:"localPath"`
+	RemoteIp       string `json:"remoteIp"`
+	RemoteUser     string `json:"remoteUser"`
+	RemotePasswd   string `json:"remotePasswd"`
+	RemoteFilePath string `json:"remoteFilePath"` // must abs path
+	SrcDir         string `json:"srcDir"`
 }
 
 type GetResponse struct {
@@ -35,9 +35,9 @@ type PutResponse struct {
 }
 
 type ListRequest struct {
-	Ip             string `json:"ip"`
-	User           string `json:"user"`
-	Passwd         string `json:"passwd"`
+	RemoteIp       string `json:"remoteIp"`
+	RemoteUser     string `json:"remoteUser"`
+	RemotePasswd   string `json:"remotePasswd"`
 	RemoteFilePath string `json:"remoteFilePath"`
 }
 
@@ -59,17 +59,13 @@ type HealthCheckResponse struct {
 //	@Tags			GET
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		GetRequest	true	"远端ep和文件路径"
+//	@Param			body	body		GetRequest	true	"remote -> server"
 //	@Success		200		{object}	GetResponse
 //	@Router			/get [post]
 func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
-		clientIp, ok := ctx.Value("clientip").(string)
-		if !ok {
-			return nil, fmt.Errorf("failed to get client ip")
-		}
 		req := request.(GetRequest)
-		err := t.Get(clientIp, req.User, req.Passwd, req.RemoteFilePath, req.LocalPath)
+		err := t.Get(req.RemoteIp, req.RemoteUser, req.RemotePasswd, req.RemoteFilePath, req.SrcDir)
 		if err != nil {
 			return GetResponse{req.RemoteFilePath + " failed", err.Error()}, err
 		}
@@ -84,7 +80,7 @@ func MakeGetEndpoint(t service.Transfer) endpoint.Endpoint {
 //	@Tags			Put
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		PutRequest	true	"client and server file"
+//	@Param			body	body		PutRequest	true	"server -> client"
 //	@Success		200		{object}	PutResponse
 //	@Router			/put [post]
 func MakePutEndpoint(t service.Transfer) endpoint.Endpoint {
@@ -109,13 +105,13 @@ func MakePutEndpoint(t service.Transfer) endpoint.Endpoint {
 //	@Tags			GET
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		ListRequest	true	"远端ep和文件路径"
+//	@Param			body	body		ListRequest	true	"remote -> server"
 //	@Success		200		{object}	ListResponse
 //	@Router			/list [post]
 func MakeListEndpoint(t service.Transfer) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
 		req := request.(ListRequest)
-		list, err := t.List(req.Ip, req.User, req.Passwd, req.RemoteFilePath)
+		list, err := t.List(req.RemoteIp, req.RemoteUser, req.RemotePasswd, req.RemoteFilePath)
 		if err != nil {
 			return ListResponse{list, err.Error()}, err
 		}

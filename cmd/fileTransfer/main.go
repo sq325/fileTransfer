@@ -33,8 +33,8 @@ var (
 
 const (
 	_service     = "fileTransfer"
-	_version     = "v0.4.3"
-	_versionInfo = "rename module name"
+	_version     = "v0.4.4"
+	_versionInfo = "arg names update"
 )
 
 var (
@@ -48,7 +48,7 @@ func init() {
 }
 
 // @title			运行室 文件传输服务
-// @version		0.4.3
+// @version		0.4.4
 
 // @license.name	Apache 2.0
 func main() {

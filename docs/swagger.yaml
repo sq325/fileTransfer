@@ -1,15 +1,16 @@
 definitions:
   endpoint.GetRequest:
     properties:
-      ip:
-        type: string
-      localPath:
-        type: string
-      passwd:
-        type: string
       remoteFilePath:
+        description: must abs path
         type: string
-      user:
+      remoteIp:
+        type: string
+      remotePasswd:
+        type: string
+      remoteUser:
+        type: string
+      srcDir:
         type: string
     type: object
   endpoint.GetResponse:
@@ -21,13 +22,13 @@ definitions:
     type: object
   endpoint.ListRequest:
     properties:
-      ip:
-        type: string
-      passwd:
-        type: string
       remoteFilePath:
         type: string
-      user:
+      remoteIp:
+        type: string
+      remotePasswd:
+        type: string
+      remoteUser:
         type: string
     type: object
   endpoint.ListResponse:
@@ -63,7 +64,7 @@ info:
   license:
     name: Apache 2.0
   title: 运行室 文件传输服务
-  version: 0.4.3
+  version: 0.4.4
 paths:
   /get:
     post:
@@ -71,7 +72,7 @@ paths:
       - application/json
       description: 支持通配符
       parameters:
-      - description: 远端ep和文件路径
+      - description: remote -> server
         in: body
         name: body
         required: true
@@ -93,7 +94,7 @@ paths:
       - application/json
       description: 支持通配符
       parameters:
-      - description: 远端ep和文件路径
+      - description: remote -> server
         in: body
         name: body
         required: true
@@ -115,7 +116,7 @@ paths:
       - application/json
       description: 支持通配符
       parameters:
-      - description: client and server file
+      - description: server -> client
         in: body
         name: body
         required: true
