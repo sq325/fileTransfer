@@ -1,4 +1,30 @@
 definitions:
+  endpoint.DownloadRequest:
+    properties:
+      clientDir:
+        type: string
+      clientIp:
+        type: string
+      clientPasswd:
+        type: string
+      clientUser:
+        type: string
+      remoteFilePath:
+        type: string
+      remoteIp:
+        type: string
+      remotePasswd:
+        type: string
+      remoteUser:
+        type: string
+    type: object
+  endpoint.DownloadResponse:
+    properties:
+      err:
+        type: string
+      v:
+        type: string
+    type: object
   endpoint.GetRequest:
     properties:
       remoteFilePath:
@@ -63,9 +89,31 @@ info:
   contact: {}
   license:
     name: Apache 2.0
-  title: 运行室 文件传输服务
-  version: 0.4.4
+  title: 文件传输服务
+  version: 0.5.0
 paths:
+  /download:
+    post:
+      consumes:
+      - application/json
+      description: 支持通配符
+      parameters:
+      - description: remote -> client
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.DownloadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/endpoint.DownloadResponse'
+      summary: 从remote端下载文件到client端
+      tags:
+      - GET
   /get:
     post:
       consumes:
@@ -94,7 +142,7 @@ paths:
       - application/json
       description: 支持通配符
       parameters:
-      - description: remote -> server
+      - description: remote
         in: body
         name: body
         required: true

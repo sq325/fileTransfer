@@ -18,6 +18,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/download": {
+            "post": {
+                "description": "支持通配符",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GET"
+                ],
+                "summary": "从remote端下载文件到client端",
+                "parameters": [
+                    {
+                        "description": "remote -\u003e client",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/endpoint.DownloadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/endpoint.DownloadResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/get": {
             "post": {
                 "description": "支持通配符",
@@ -67,7 +101,7 @@ const docTemplate = `{
                 "summary": "从remote端获取文件列表",
                 "parameters": [
                     {
-                        "description": "remote -\u003e server",
+                        "description": "remote",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -122,6 +156,46 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "endpoint.DownloadRequest": {
+            "type": "object",
+            "properties": {
+                "clientDir": {
+                    "type": "string"
+                },
+                "clientIp": {
+                    "type": "string"
+                },
+                "clientPasswd": {
+                    "type": "string"
+                },
+                "clientUser": {
+                    "type": "string"
+                },
+                "remoteFilePath": {
+                    "type": "string"
+                },
+                "remoteIp": {
+                    "type": "string"
+                },
+                "remotePasswd": {
+                    "type": "string"
+                },
+                "remoteUser": {
+                    "type": "string"
+                }
+            }
+        },
+        "endpoint.DownloadResponse": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "v": {
+                    "type": "string"
+                }
+            }
+        },
         "endpoint.GetRequest": {
             "type": "object",
             "properties": {
@@ -219,11 +293,11 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.4.4",
+	Version:          "0.5.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "运行室 文件传输服务",
+	Title:            "文件传输服务",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

@@ -52,6 +52,22 @@ type HealthCheckResponse struct {
 	V bool `json:"v"` // status code
 }
 
+type DownloadRequest struct {
+	RemoteIp       string `json:"remoteIp"`
+	RemoteUser     string `json:"remoteUser"`
+	RemotePasswd   string `json:"remotePasswd"`
+	RemoteFilePath string `json:"remoteFilePath"`
+	ClientIp       string `json:"clientIp"`
+	ClientUser     string `json:"clientUser"`
+	ClientPasswd   string `json:"clientPasswd"`
+	ClientDir      string `json:"clientDir"`
+}
+
+type DownloadResponse struct {
+	V   string `json:"v"`
+	Err string `json:"err"`
+}
+
 // Get
 //
 //	@Summary 从remote端拉取文件到server端
@@ -105,10 +121,10 @@ func MakePutEndpoint(t service.Transfer) endpoint.Endpoint {
 //	@Tags			GET
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		ListRequest	true	"remote -> server"
+//	@Param			body	body		ListRequest	true	"remote"
 //	@Success		200		{object}	ListResponse
 //	@Router			/list [post]
-func MakeListEndpoint(t service.Transfer) endpoint.Endpoint {
+func MakeListEndpoint(t service.Lister) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
 		req := request.(ListRequest)
 		list, err := t.List(req.RemoteIp, req.RemoteUser, req.RemotePasswd, req.RemoteFilePath)
@@ -116,6 +132,27 @@ func MakeListEndpoint(t service.Transfer) endpoint.Endpoint {
 			return ListResponse{list, err.Error()}, err
 		}
 		return ListResponse{list, ""}, nil
+	}
+}
+
+// Download
+//
+//	@Summary		从remote端下载文件到client端
+//	@Description	支持通配符
+//	@Tags			GET
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		DownloadRequest	true	"remote -> client"
+//	@Success		200		{object}	DownloadResponse
+//	@Router			/download [post]
+func MakeDownloadEndpoint(d service.Downloader) endpoint.Endpoint {
+	return func(ctx context.Context, request any) (any, error) {
+		req := request.(DownloadRequest)
+		err := d.Download(req.RemoteIp, req.RemoteUser, req.RemotePasswd, req.RemoteFilePath, req.ClientIp, req.ClientUser, req.ClientPasswd, req.ClientDir)
+		if err != nil {
+			return DownloadResponse{req.RemoteFilePath + " download failed", err.Error()}, err
+		}
+		return DownloadResponse{req.RemoteFilePath + " downlaod OK", ""}, nil
 	}
 }
 

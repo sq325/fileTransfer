@@ -51,3 +51,15 @@ func DecodePutRequest(ctx context.Context, r *http.Request) (any, error) {
 func EncodePutResponse(ctx context.Context, w http.ResponseWriter, response any) error {
 	return json.NewEncoder(w).Encode(response)
 }
+
+func DecodeDownloadRequest(ctx context.Context, r *http.Request) (any, error) {
+	var request endpoint.DownloadRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, err
+	}
+	return request, nil
+}
+
+func EncodeDownloadResponse(ctx context.Context, w http.ResponseWriter, response any) error {
+	return json.NewEncoder(w).Encode(response)
+}

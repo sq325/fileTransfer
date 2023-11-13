@@ -33,8 +33,8 @@ var (
 
 const (
 	_service     = "fileTransfer"
-	_version     = "v0.4.4"
-	_versionInfo = "arg names update"
+	_version     = "v0.5.0"
+	_versionInfo = "add /download"
 )
 
 var (
@@ -47,8 +47,8 @@ func init() {
 	pflag.Parse()
 }
 
-// @title			运行室 文件传输服务
-// @version		0.4.4
+// @title			文件传输服务
+// @version		0.5.0
 
 // @license.name	Apache 2.0
 func main() {
@@ -65,6 +65,8 @@ func main() {
 	instrumentingMiddleware := instrumentation.InstrumentingMiddleware(metrics)
 
 	transferSvc := service.NewTransfer()
+	listSvc := service.NewLister()
+	downloadSvc := service.NewDownloader()
 	healthSvc := func() bool {
 		return transferSvc.HealthCheck()
 	}
@@ -97,9 +99,19 @@ func main() {
 		instrumentation.GinHandlerFunc(
 			"POST",
 			"/list",
-			instrumentingMiddleware(endpoint.MakeListEndpoint(transferSvc)),
+			instrumentingMiddleware(endpoint.MakeListEndpoint(listSvc)),
 			transport.DecodeListRequest,
 			transport.EncodeListResponse,
+		),
+	)
+
+	mux.POST("/download",
+		instrumentation.GinHandlerFunc(
+			"POST",
+			"/download",
+			instrumentingMiddleware(endpoint.MakeDownloadEndpoint(downloadSvc)),
+			transport.DecodeDownloadRequest,
+			transport.EncodeDownloadResponse,
 		),
 	)
 

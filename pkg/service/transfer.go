@@ -12,7 +12,6 @@ import (
 
 type Transfer interface {
 	Get(remoteIp, remoteUser, remotePasswd, remoteFilePath, srcDir string) error
-	List(remoteIp, remoteUser, remotePasswd, remoteFilePath string) ([]string, error)
 	Put(clientIp, ClientUser, ClientPasswd, clientDir, srcFilePath string) error
 	HealthCheck() bool
 }
@@ -70,25 +69,6 @@ func (t transfer) Get(remoteIp, remoteUser, remotePasswd, remoteFilePath, srcDir
 	}
 
 	return nil
-}
-
-func (t transfer) List(remoteIp, remoteUser, remotePasswd, remoteFilePath string) ([]string, error) {
-	sshClient, err := newSshClient(remoteIp, remoteUser, remotePasswd)
-	if err != nil {
-		return nil, err
-	}
-	defer sshClient.Close()
-
-	sftpClient, err := newSftpClient(sshClient)
-	if err != nil {
-		return nil, err
-	}
-
-	paths, err := sftpClient.Glob(remoteFilePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to Glob %s: %w", remoteFilePath, err)
-	}
-	return paths, nil
 }
 
 func (t transfer) Put(clientIp, ClientUser, ClientPasswd, clientDir, srcFilePath string) error {
@@ -182,7 +162,7 @@ func newSshClient(ip, user, passwd string) (*ssh.Client, error) {
 
 	sshClient, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", ip, sftpPort), sshConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to establish SSH connection: %w", err)
+		return nil, fmt.Errorf("%s failed to establish SSH connection: %w", ip, err)
 	}
 	return sshClient, nil
 }
