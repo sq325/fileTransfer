@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/sq325/fileTransfer/pkg/endpoint"
 	"github.com/sq325/fileTransfer/pkg/service"
@@ -33,8 +36,8 @@ var (
 
 const (
 	_service     = "fileTransfer"
-	_version     = "v0.5.0"
-	_versionInfo = "add /download"
+	_version     = "v0.5.1"
+	_versionInfo = "add deregister service"
 )
 
 var (
@@ -48,7 +51,7 @@ func init() {
 }
 
 // @title			文件传输服务
-// @version		0.5.0
+// @version		0.5.1
 
 // @license.name	Apache 2.0
 func main() {
@@ -130,30 +133,48 @@ func main() {
 
 	// register service
 	if *consul != "" {
-		registerSvc()
+		var r *complementConsul.Registrar
+		{
+			c := strings.Split(strings.TrimSpace(*consul), ":")
+			ip := c[0]
+			p, _ := strconv.Atoi(c[1])
+			r = complementConsul.NewRegistrar(ip, p)
+		}
+
+		var svc *complementConsul.Service
+		{
+			port, _ := strconv.Atoi(*port)
+			svc = &complementConsul.Service{
+				Name: _service,
+				Port: port,
+				Check: struct {
+					Path     string
+					Interval string
+					Timeout  string
+				}{
+					Path:     "/health",
+					Interval: "60s",
+					Timeout:  "10s",
+				},
+			}
+		}
+		r.Register(*svc)
+		defer r.Deregister(*svc)
 	}
 
-	log.Fatal(mux.Run(":" + *port))
-}
+	go func() { // no blocking
+		log.Fatal(mux.Run(":" + *port))
+	}()
 
-func registerSvc() {
-	c := strings.Split(strings.TrimSpace(*consul), ":")
-	ip := c[0]
-	p, _ := strconv.Atoi(c[1])
-	r := complementConsul.NewRegistrar(ip, p)
-	port, _ := strconv.Atoi(*port)
-	svc := complementConsul.Service{
-		Name: _service,
-		Port: port,
-		Check: struct {
-			Path     string
-			Interval string
-			Timeout  string
-		}{
-			Path:     "/health",
-			Interval: "60s",
-			Timeout:  "10s",
-		},
+	// sig capture
+	chSig := make(chan os.Signal, 1)
+	signal.Notify(chSig, syscall.SIGHUP, syscall.SIGTERM)
+	for sig := range chSig { // blocking
+		switch sig {
+		case syscall.SIGTERM:
+			return
+		case syscall.SIGHUP:
+			continue
+		}
 	}
-	r.Register(svc)
 }
