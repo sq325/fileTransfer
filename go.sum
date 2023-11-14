@@ -264,6 +264,10 @@ github.com/sq325/kitComplement v0.1.1 h1:yin4O7zd/Ap82ucISrOZaY7aigrH84KtN8xcMDf
 github.com/sq325/kitComplement v0.1.1/go.mod h1:YKyH9O1LdwNWP5FhBjH44z6V1Q9AeibmN0n1RUHGSoE=
 github.com/sq325/kitComplement v0.1.2 h1:6EvURQ8bVnQIaqdMeVDu55uOaf1HimvyF0gXpri/K4A=
 github.com/sq325/kitComplement v0.1.2/go.mod h1:YKyH9O1LdwNWP5FhBjH44z6V1Q9AeibmN0n1RUHGSoE=
+github.com/sq325/kitComplement v0.2.2 h1:Mtl9pGh09N9HvQD6RcsvE976OHeQwDF4EH3wXE6uSQ4=
+github.com/sq325/kitComplement v0.2.2/go.mod h1:YKyH9O1LdwNWP5FhBjH44z6V1Q9AeibmN0n1RUHGSoE=
+github.com/sq325/kitComplement v0.2.3 h1:Cw8zpCG2ilqJbdUAmmEY4Q3bdXeOkFx652Etx0gqs+8=
+github.com/sq325/kitComplement v0.2.3/go.mod h1:YKyH9O1LdwNWP5FhBjH44z6V1Q9AeibmN0n1RUHGSoE=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=

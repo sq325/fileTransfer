@@ -36,8 +36,8 @@ var (
 
 const (
 	_service     = "fileTransfer"
-	_version     = "v0.5.1"
-	_versionInfo = "add deregister service"
+	_version     = "v0.5.3"
+	_versionInfo = "check local ip"
 )
 
 var (
@@ -51,7 +51,7 @@ func init() {
 }
 
 // @title			文件传输服务
-// @version		0.5.1
+// @version		0.5.3
 
 // @license.name	Apache 2.0
 func main() {
@@ -133,12 +133,14 @@ func main() {
 
 	// register service
 	if *consul != "" {
-		var r *complementConsul.Registrar
+		var r complementConsul.Registrar
 		{
 			c := strings.Split(strings.TrimSpace(*consul), ":")
 			ip := c[0]
 			p, _ := strconv.Atoi(c[1])
-			r = complementConsul.NewRegistrar(ip, p)
+			consulClient := complementConsul.NewConsulClient(ip, p)
+			logger := complementConsul.NewLogger()
+			r = complementConsul.NewRegistrar(consulClient, logger)
 		}
 
 		var svc *complementConsul.Service
@@ -158,12 +160,16 @@ func main() {
 				},
 			}
 		}
-		r.Register(*svc)
-		defer r.Deregister(*svc)
+		r.Register(svc)
+		defer r.Deregister(svc)
 	}
 
 	go func() { // no blocking
-		log.Fatal(mux.Run(":" + *port))
+		err := mux.Run(":" + *port)
+		if err != nil {
+			log.Println(err)
+		}
+		syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
 	}()
 
 	// sig capture

@@ -3,10 +3,13 @@ package service
 import (
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/sftp"
+	"github.com/sq325/kitComplement/pkg/tool"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -31,6 +34,10 @@ func (t transfer) Get(remoteIp, remoteUser, remotePasswd, remoteFilePath, srcDir
 		return fmt.Errorf("%s must be dir", srcDir)
 	}
 	srcDir, _ = filepath.Abs(srcDir)
+
+	if isLocalIp(remoteIp) {
+		return fmt.Errorf("%s is server ip", remoteIp)
+	}
 
 	// remoteFilePath muse be abs path
 	if !filepath.IsAbs(remoteFilePath) {
@@ -78,6 +85,10 @@ func (t transfer) Put(clientIp, ClientUser, ClientPasswd, clientDir, srcFilePath
 		return fmt.Errorf("failed to get local file info: %w", err)
 	} else if info.IsDir() {
 		return fmt.Errorf("%s must not be dir", srcFilePath)
+	}
+
+	if isLocalIp(clientIp) {
+		return fmt.Errorf("%s is server ip", clientIp)
 	}
 
 	sshClient, err := newSshClient(clientIp, ClientUser, ClientPasswd)
@@ -173,4 +184,17 @@ func newSftpClient(sshClient *ssh.Client) (*sftp.Client, error) {
 		return nil, fmt.Errorf("failed to create SFTP client: %w", err)
 	}
 	return sftpClient, nil
+}
+
+func isLocalIp(ip string) bool {
+	intfs, _ := net.Interfaces()
+	for _, intf := range intfs {
+		intf := intf
+		addrs := tool.AddrList(&intf)
+		for _, addr := range addrs {
+			return addr.String() == strings.TrimSpace(ip)
+		}
+	}
+
+	return false
 }

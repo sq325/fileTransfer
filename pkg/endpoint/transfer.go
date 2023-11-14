@@ -162,3 +162,4 @@ func MakeHealthEndpoint(t service.Transfer) endpoint.Endpoint {
 		return HealthCheckResponse{V: status}, nil
 	}
 }
+

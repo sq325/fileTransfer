@@ -13,6 +13,9 @@ func NewLister() Lister {
 }
 
 func (l lister) List(remoteIp, remoteUser, remotePasswd, remoteFilePath string) ([]string, error) {
+	if isLocalIp(remoteIp) {
+		return nil, fmt.Errorf("%s is server ip", remoteIp)
+	}
 	sshClient, err := newSshClient(remoteIp, remoteUser, remotePasswd)
 	if err != nil {
 		return nil, err
