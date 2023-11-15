@@ -36,8 +36,8 @@ var (
 
 const (
 	_service     = "fileTransfer"
-	_version     = "v0.5.3"
-	_versionInfo = "check local ip"
+	_version     = "v0.5.4"
+	_versionInfo = "add dec funcs"
 )
 
 var (
@@ -51,7 +51,7 @@ func init() {
 }
 
 // @title			文件传输服务
-// @version		0.5.3
+// @version		0.5.4
 
 // @license.name	Apache 2.0
 func main() {
